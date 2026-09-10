@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In — Offline AI Assistant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="auth-shell">
+
+    <div class="auth-brand">
+        <div class="auth-brand__mark">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                <path d="M6 3h9l4 4v14H6z"/>
+                <path d="M15 3v4h4"/>
+                <path d="M9 13h6M9 16.5h6M9 9.5h3"/>
+            </svg>
+            Offline AI Assistant
+        </div>
+
+        <div class="auth-brand__body">
+            <h2>Ask questions about your documents, entirely offline.</h2>
+            <p>Upload a PDF and get instant answers — no data ever leaves your machine.</p>
+        </div>
+
+        <div class="auth-brand__foot">© 2026 Offline AI Assistant</div>
+    </div>
+
+    <div class="auth-form-panel">
+        <form class="auth-form" method="POST">
+            <h1>Welcome back</h1>
+            <p class="auth-form__lede">Sign in to continue to your workspace.</p>
+
+            {% if error %}
+            <div class="form-error">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                    <circle cx="12" cy="12" r="9"/>
+                    <path d="M12 8v5M12 16h.01"/>
+                </svg>
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <div class="field">
+                <label for="username">Username</label>
+                <div class="field-control">
+                    <input type="text" id="username" name="username" placeholder="Enter your username" required>
+                </div>
+            </div>
+
+            <div class="field">
+                <label for="password">Password</label>
+                <div class="field-control">
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Sign in</button>
+
+            <p class="auth-form__foot">
+                Don't have an account? <a href="{{ url_for('register') }}">Create one</a>
+            </p>
+        </form>
+    </div>
+
+</div>
+
+</body>
+</html>

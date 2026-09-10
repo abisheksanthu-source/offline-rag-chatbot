@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Offline AI Assistant — Document Intelligence</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="app-layout">
+
+    <!-- TOP NAVIGATION BAR -->
+    <header class="app-topbar">
+      <div class="topbar-left">
+        <div class="logo-mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+            <polyline points="10 9 9 9 8 9"/>
+          </svg>
+        </div>
+        <div class="logo-info">
+          <span class="logo-title">Offline AI Assistant</span>
+          <span class="logo-pill">RAG Engine</span>
+        </div>
+      </div>
+
+      <div class="topbar-right">
+        <!-- Backend Status Pill -->
+        <button id="backend-status-pill" class="status-pill checking" title="Click to configure backend connection">
+          <span class="status-dot"></span>
+          <span class="status-label">Connecting...</span>
+        </button>
+
+        <!-- Clear Chat Button -->
+        <button id="btn-clear-chat" class="btn-action-icon" title="Clear conversation history">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          </svg>
+        </button>
+
+        <!-- User Profile -->
+        <button id="btn-auth" class="btn-profile" title="Account profile">
+          <div class="avatar-circle">
+            <span id="avatar-initial">?</span>
+          </div>
+          <span id="username-label">Sign In</span>
+        </button>
+
+        <!-- Settings Cog -->
+        <button id="btn-settings" class="btn-action-icon" title="Server settings">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- WORKSPACE BODY -->
+    <div class="app-body">
+
+      <!-- LEFT SIDEBAR: KNOWLEDGE BASE -->
+      <aside class="sidebar-panel">
+        <div class="sidebar-header">
+          <h2>Knowledge Base</h2>
+          <p>Upload a document to index and query</p>
+        </div>
+
+        <!-- Active Document Card (dynamic) -->
+        <div id="active-doc-banner" class="active-doc-box hidden">
+          <div class="doc-badge-row">
+            <span class="pulse-badge">Active Knowledge</span>
+            <button id="btn-replace-doc" class="btn-text-action" title="Replace with new PDF">Replace</button>
+          </div>
+          <div class="doc-details">
+            <div class="doc-icon-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+              </svg>
+            </div>
+            <div class="doc-text-meta">
+              <div id="doc-title-text" class="doc-title" title="document.pdf">document.pdf</div>
+              <div class="doc-status-text">✓ Ready for Q&A queries</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Upload Dropzone -->
+        <div id="dropzone" class="upload-dropzone">
+          <input type="file" id="pdf-input" accept=".pdf" class="sr-only-input" />
+          <div class="dropzone-inner">
+            <div class="upload-icon-box">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+            </div>
+            <p class="dropzone-main">Drop PDF here, or <span>browse</span></p>
+            <p class="dropzone-hint">PDF files up to 50MB</p>
+          </div>
+          <div id="upload-progress-wrap" class="progress-bar-wrap hidden">
+            <div class="progress-indeterminate"></div>
+          </div>
+        </div>
+
+        <!-- Pending File Selected Card -->
+        <div id="file-staged-box" class="file-staged-card hidden">
+          <div class="staged-meta">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+            </svg>
+            <span id="staged-file-name" class="staged-name">file.pdf</span>
+          </div>
+          <button id="btn-upload-file" class="btn-primary btn-sm">
+            <span class="btn-label">Index Document</span>
+            <span class="btn-spinner hidden"></span>
+          </button>
+        </div>
+
+        <!-- Auto-dismissing Toast Alert -->
+        <div id="sidebar-toast" class="sidebar-toast hidden"></div>
+
+        <!-- Footer Info -->
+        <div class="sidebar-footer-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+          <span>Offline RAG • Hybrid TF-IDF & Character N-Grams</span>
+        </div>
+      </aside>
+
+      <!-- RIGHT CHAT AREA -->
+      <main class="chat-viewport">
+
+        <!-- Contextual Notification Banner (Dismissible) -->
+        <div id="context-banner" class="context-banner hidden">
+          <div class="banner-inner">
+            <span class="banner-icon-badge">⚡</span>
+            <span id="banner-message" class="banner-content">Notice message</span>
+            <button id="btn-close-banner" class="banner-close" title="Dismiss">&times;</button>
+          </div>
+        </div>
+
+        <!-- Chat Stream Messages -->
+        <div id="chat-messages" class="messages-container">
+
+          <!-- Welcome Hero / Empty State -->
+          <div id="empty-state-hero" class="hero-welcome">
+            <div class="hero-sparkle">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+              </svg>
+            </div>
+            <h1>Document Intelligence</h1>
+            <p>Upload a document in the left panel to begin asking questions and extracting precise answers.</p>
+
+            <div class="starter-suggestions">
+              <button class="suggestion-chip" data-text="What are the key concepts and topics covered in this document?">
+                <span class="chip-tag">Overview</span>
+                <span class="chip-text">What are the key concepts covered?</span>
+              </button>
+              <button class="suggestion-chip" data-text="Explain the main definitions and terminology with examples.">
+                <span class="chip-tag">Definitions</span>
+                <span class="chip-text">Explain the main definitions with examples</span>
+              </button>
+              <button class="suggestion-chip" data-text="What are the advantages, disadvantages, and important syntax mentioned?">
+                <span class="chip-tag">Deep Dive</span>
+                <span class="chip-text">What are the advantages and important syntax?</span>
+              </button>
+              <button class="suggestion-chip" data-text="Summarize the core takeaways and conclusions.">
+                <span class="chip-tag">Summary</span>
+                <span class="chip-text">Summarize the core takeaways</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- BOTTOM COMPOSER CONTAINER -->
+        <div class="composer-dock">
+          <form id="chat-form" class="composer-shell">
+            <input
+              type="text"
+              id="chat-input"
+              class="composer-field"
+              placeholder="Ask a question about your PDF (Press Enter to submit)..."
+              autocomplete="off"
+            />
+            <button type="submit" id="btn-send-message" class="btn-composer-submit" title="Send Question" disabled>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"/>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+              </svg>
+            </button>
+          </form>
+          <div class="composer-legend">
+            <span>Powered by Offline TF-IDF RAG • No data leaves your machine</span>
+          </div>
+        </div>
+
+      </main>
+
+    </div>
+
+    <!-- MODAL: SERVER SETTINGS -->
+    <div id="settings-modal" class="modal-backdrop hidden">
+      <div class="modal-card">
+        <div class="modal-head">
+          <div class="head-title-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+            <h3>Backend Server Configuration</h3>
+          </div>
+          <button id="btn-close-settings" class="btn-modal-close">&times;</button>
+        </div>
+
+        <div class="modal-content">
+          <p class="modal-help-text">
+            Choose whether to connect to your local Flask server or your live Render cloud deployment.
+          </p>
+
+          <!-- Quick Presets -->
+          <div class="preset-buttons">
+            <button type="button" id="btn-preset-local" class="preset-card">
+              <span class="preset-name">🖥️ Local Machine</span>
+              <span class="preset-url">http://localhost:5000</span>
+            </button>
+          </div>
+
+          <div class="form-field">
+            <label for="server-url-field">Backend API Base URL</label>
+            <input
+              type="url"
+              id="server-url-field"
+              class="field-input"
+              placeholder="http://localhost:5000 or https://your-app.onrender.com"
+            />
+          </div>
+
+          <!-- Connection result feedback -->
+          <div id="connection-status-box" class="conn-feedback hidden"></div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" id="btn-test-conn" class="btn-secondary">Test Connection</button>
+          <button type="button" id="btn-save-conn" class="btn-primary">Save & Connect</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: AUTHENTICATION -->
+    <div id="auth-dialog" class="modal-backdrop hidden">
+      <div class="modal-card modal-card-sm">
+        <div class="modal-head">
+          <h3 id="auth-title">Sign In</h3>
+          <button id="btn-close-auth" class="btn-modal-close">&times;</button>
+        </div>
+
+        <div class="modal-content">
+          <div class="auth-toggle-tabs">
+            <button type="button" id="tab-signin" class="tab-toggle active">Sign In</button>
+            <button type="button" id="tab-register" class="tab-toggle">Register</button>
+          </div>
+
+          <form id="auth-submit-form" class="auth-form-fields">
+            <div class="form-field">
+              <label for="input-username">Username</label>
+              <input type="text" id="input-username" class="field-input" placeholder="Enter username" required />
+            </div>
+
+            <div class="form-field">
+              <label for="input-password">Password</label>
+              <input type="password" id="input-password" class="field-input" placeholder="Enter password" required />
+            </div>
+
+            <div id="auth-feedback" class="conn-feedback hidden"></div>
+
+            <button type="submit" id="btn-submit-auth" class="btn-primary btn-block">
+              <span class="btn-label">Sign In</span>
+              <span class="btn-spinner hidden"></span>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

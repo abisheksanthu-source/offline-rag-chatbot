@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+
+# Local databases & uploads
+users.db
+uploads/*
+!uploads/.gitkeep
+knowledge/*
+!knowledge/.gitkeep
+
+# Environment variables
+.env
+.env.local
+
+# Operating System
+.DS_Store
+Thumbs.db
+
+# Vercel & Node
+.vercel
+node_modules/
