@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline AI Assistant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="app">
+
+    <!-- TOP BAR -->
+    <header class="topbar">
+        <div class="topbar__brand">
+            <div class="topbar__logo">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M6 3h9l4 4v14H6z"/>
+                    <path d="M15 3v4h4"/>
+                    <path d="M9 13h6M9 16.5h6M9 9.5h3"/>
+                </svg>
+            </div>
+            <div>
+                <h1>Offline AI Assistant</h1>
+                <p>Ask questions about your uploaded PDF</p>
+            </div>
+        </div>
+
+        <a href="{{ url_for('logout') }}" class="btn-ghost">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                <path d="M16 17l5-5-5-5"/>
+                <path d="M21 12H9"/>
+            </svg>
+            Logout
+        </a>
+    </header>
+
+    <div class="layout">
+
+        <!-- SIDEBAR: PDF UPLOAD -->
+        <aside class="sidebar">
+            <form method="POST" enctype="multipart/form-data" class="sidebar__form">
+
+                <h2 class="sidebar__title">Your document</h2>
+
+                {% if pdf_name %}
+                <div class="doc-active">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path d="M6 3h9l4 4v14H6z"/>
+                        <path d="M15 3v4h4"/>
+                    </svg>
+                    <div>
+                        <div class="doc-active__label">Active PDF</div>
+                        <div class="doc-active__name">{{ pdf_name }}</div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <label for="pdf" class="dropzone">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                        <path d="M12 16V4M12 4 7 9M12 4l5 5"/>
+                        <path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/>
+                    </svg>
+                    <span class="dropzone__title">Click to choose a PDF</span>
+                    <span class="dropzone__hint">or drag and drop it here</span>
+                </label>
+
+                <input
+                    type="file"
+                    id="pdf"
+                    name="pdf"
+                    accept=".pdf"
+                    onchange="showFileName()"
+                    hidden
+                >
+
+                <div id="file-name" class="file-name">No file selected</div>
+
+                <button type="submit" name="action" value="upload" class="btn-primary">
+                    Upload PDF
+                </button>
+
+                <p class="sidebar__note">
+                    Your document is processed locally — nothing leaves your machine.
+                </p>
+
+            </form>
+        </aside>
+
+        <!-- MAIN: Q&A -->
+        <main class="main">
+
+            <form method="POST" enctype="multipart/form-data" class="composer">
+                <input
+                    type="text"
+                    name="question"
+                    placeholder="Ask something about your PDF…"
+                    autocomplete="off"
+                    {% if not pdf_name %}disabled{% endif %}
+                >
+                <button type="submit" name="action" value="ask" {% if not pdf_name %}disabled{% endif %}>
+                    Ask
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M13 6l6 6-6 6"/>
+                    </svg>
+                </button>
+            </form>
+
+            {% if answer %}
+            <div class="answer">
+                {% if question %}
+                <div class="answer__question">
+                    <span>You asked</span>
+                    “{{ question }}”
+                </div>
+                {% endif %}
+                <div class="answer__body">
+                    <div class="answer__label">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                        </svg>
+                        Answer
+                    </div>
+                    <div class="answer__text">{{ answer }}</div>
+                </div>
+            </div>
+
+            {% elif not pdf_name %}
+            <div class="empty-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M6 3h9l4 4v14H6z"/>
+                    <path d="M15 3v4h4"/>
+                </svg>
+                <h3>No document yet</h3>
+                <p>Upload a PDF from the panel on the left to start asking questions.</p>
+            </div>
+
+            {% else %}
+            <div class="empty-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+                <h3>Ready when you are</h3>
+                <p>Type a question above about “{{ pdf_name }}” and press Ask.</p>
+            </div>
+            {% endif %}
+
+        </main>
+
+    </div>
+
+</div>
+
+<script>
+function showFileName() {
+    const file = document.getElementById("pdf").files[0];
+    const label = document.getElementById("file-name");
+    label.textContent = file ? file.name : "No file selected";
+    label.classList.toggle("file-name--active", !!file);
+}
+</script>
+
+</body>
+</html>
